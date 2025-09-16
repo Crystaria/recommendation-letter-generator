@@ -1,4 +1,4 @@
-const ZAPIER_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzqXtoBie3ZiOeHn8nPKp2xV0toMSDdSXy6qNqrilJOODKPot5BgbEJkbi7QBp4wy-i/exec"; // REPLACE
+const ZAPIER_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzqXtoBie3ZiOeHn8nPKp2xV0toMSDdSXy6qNqrilJOODKPot5BgbEJkbi7QBp4wy-i/exec"; // GAS Web App URL
 
 const form = document.getElementById("letterForm");
 const resultCard = document.getElementById("resultCard");
@@ -50,20 +50,35 @@ form.addEventListener("submit", async (e) => {
       mode: "cors"
     });
 
-    if (!res.ok) throw new Error("网络错误，请稍后重试");
+    if (!res.ok) {
+      let errText = "";
+      try { errText = await res.text(); } catch {}
+      throw new Error(`网络错误：${res.status}${errText ? " - " + errText : ""}`);
+    }
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      const text = await res.text();
+      data = { letter_text: text, risk_flags: [] };
+    }
+
+    if (data.error) throw new Error(data.error);
 
     letterOutput.textContent = data.letter_text || "No content returned.";
-    flagsText.textContent = (data.risk_flags && data.risk_flags.length)
+    flagsText.textContent = (Array.isArray(data.risk_flags) && data.risk_flags.length)
       ? `注意：${data.risk_flags.join(", ")}`
       : "";
     resultCard.classList.remove("hidden");
 
     const blob = new Blob([letterOutput.textContent], { type: "text/plain" });
     downloadBtn.href = URL.createObjectURL(blob);
+    const studentName = (payload.student_name || "student").replace(/[^\w\- ]+/g, "").trim() || "student";
+    downloadBtn.download = `${studentName}-recommendation.txt`;
   } catch (err) {
-    letterOutput.textContent = `生成失败：${err.message}`;
+    letterOutput.textContent = `生成失败：${err.message || String(err)}`;
+    flagsText.textContent = "";
     resultCard.classList.remove("hidden");
   } finally {
     submitBtn.disabled = false;
