@@ -1,4 +1,4 @@
-const ZAPIER_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzqXtoBie3ZiOeHn8nPKp2xV0toMSDdSXy6qNqrilJOODKPot5BgbEJkbi7QBp4wy-i/exec"; // GAS Web App URL
+const ZAPIER_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzqXtoBie3ZiOeHn8nPKp2xV0toMSDdSXy6qNqrilJOODKPot5BgbEJkbi7QBp4wy-i/exec";
 
 const form = document.getElementById("letterForm");
 const resultCard = document.getElementById("resultCard");
@@ -43,28 +43,27 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
+    const fd = new FormData();
+    fd.append("payload", JSON.stringify(payload));
+
     const res = await fetch(ZAPIER_WEBHOOK_URL, {
-  method: "POST",
-  // 关键：用 text/plain 避免预检
-  headers: { "Content-Type": "text/plain;charset=utf-8" },
-  body: JSON.stringify(payload),
-  // mode 可留可去，留着也没问题
-  mode: "cors"
-});
+      method: "POST",
+      body: fd
+    });
 
-if (!res.ok) {
-  let errText = "";
-  try { errText = await res.text(); } catch {}
-  throw new Error(`网络错误：${res.status}${errText ? " - " + errText : ""}`);
-}
+    if (!res.ok) {
+      let errText = "";
+      try { errText = await res.text(); } catch {}
+      throw new Error(`网络错误：${res.status}${errText ? " - " + errText : ""}`);
+    }
 
-let data;
-try {
-  data = await res.json();
-} catch {
-  const text = await res.text();
-  data = { letter_text: text, risk_flags: [] };
-}
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      const text = await res.text();
+      data = { letter_text: text, risk_flags: [] };
+    }
 
     if (data.error) throw new Error(data.error);
 
