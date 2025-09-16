@@ -1,4 +1,4 @@
-const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/22944478/umr4qe2/"; // REPLACE
+const ZAPIER_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzqXtoBie3ZiOeHn8nPKp2xV0toMSDdSXy6qNqrilJOODKPot5BgbEJkbi7QBp4wy-i/exec"; // REPLACE
 
 const form = document.getElementById("letterForm");
 const resultCard = document.getElementById("resultCard");
