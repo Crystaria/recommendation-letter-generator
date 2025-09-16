@@ -1,4 +1,4 @@
-const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/xxx/yyy"; // REPLACE
+const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/22944478/umr4qe2/"; // REPLACE
 
 const form = document.getElementById("letterForm");
 const resultCard = document.getElementById("resultCard");
