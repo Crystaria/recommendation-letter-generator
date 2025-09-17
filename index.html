@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI 推荐信生成器（国际高中班主任）</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <meta name="description" content="为国际高中班主任设计的美本推荐信生成器，60秒填写立即生成可用草稿。" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>AI 推荐信生成器</h1>
+    <p class="subtitle">面向国际高中班主任 · 60-90 秒填写 · 一键生成草稿</p>
+  </header>
+
+  <main class="container">
+    <form id="letterForm" class="card">
+      <section class="grid">
+        <div class="field">
+          <label for="student_name">学生英文名（必填）</label>
+          <input id="student_name" name="student_name" required placeholder="e.g., Alex Chen" />
+        </div>
+
+        <div class="field">
+          <label for="letter_type">推荐信类型（必选）</label>
+          <select id="letter_type" name="letter_type" required>
+            <option value="">请选择</option>
+            <option value="Counselor">Counselor（班主任/升学顾问）</option>
+            <option value="Teacher">Teacher（学科老师）</option>
+            <option value="Character">Character（品格/活动）</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="relationship_role">师生关系（默认 Homeroom）</label>
+          <select id="relationship_role" name="relationship_role">
+            <option value="Homeroom Teacher" selected>Homeroom Teacher</option>
+            <option value="Counselor">Counselor</option>
+            <option value="Subject Teacher">Subject Teacher</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="relationship_duration">任教/观察时长（默认 2 years）</label>
+          <input id="relationship_duration" name="relationship_duration" placeholder="e.g., 2 years" value="2 years" />
+        </div>
+
+        <div class="field">
+          <label for="deadline">最早截止日期（选填）</label>
+          <input id="deadline" name="deadline" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="strengths_tags">3 个优势词（逗号分隔，必填）</label>
+          <input id="strengths_tags" name="strengths_tags" required placeholder="diligent, collaborative, analytical" />
+        </div>
+
+        <div class="field field--full">
+          <label for="anecdote_text">可选：一则事例（1-3 句）</label>
+          <textarea id="anecdote_text" name="anecdote_text" rows="3" placeholder="E.g., Led our class project timeline, mediated peer conflict, and presented lessons learned to the grade."></textarea>
+        </div>
+
+        <details class="field field--full">
+          <summary>可选：目标专业/院校与高级设置</summary>
+          <div class="field">
+            <label for="intended_majors">目标专业（可留空）</label>
+            <input id="intended_majors" name="intended_majors" placeholder="e.g., Computer Science; Data Science" />
+          </div>
+          <div class="field">
+            <label for="target_schools">目标院校（每行一个，可留空）</label>
+            <textarea id="target_schools" name="target_schools" rows="3" placeholder="University of Michigan&#10;UC San Diego"></textarea>
+          </div>
+          <div class="field">
+            <label for="salutation">抬头（默认 To Whom It May Concern,）</label>
+            <input id="salutation" name="salutation" value="To Whom It May Concern," />
+          </div>
+          <div class="field">
+            <label for="teacher_name">教师姓名（推荐信落款）</label>
+            <input id="teacher_name" name="teacher_name" placeholder="e.g., Dr. Sarah Johnson" />
+          </div>
+          <div class="field">
+            <label for="letter_length">篇幅（默认 300 词）</label>
+            <select id="letter_length" name="letter_length">
+              <option value="150">150 words</option>
+              <option value="300" selected>300 words</option>
+              <option value="400">400 words</option>
+            </select>
+          </div>
+        </details>
+      </section>
+
+      <div class="actions">
+        <button type="submit" id="submitBtn">生成推荐信</button>
+        <button type="button" id="fillDemoBtn" class="secondary">一键示例填充</button>
+      </div>
+
+      <p id="formHelp" class="help">未填事例时，系统会自动生成一条稳妥事例。</p>
+    </form>
+
+    <section id="resultCard" class="card hidden">
+      <h2>生成结果预览</h2>
+      <pre id="letterOutput" class="letter"></pre>
+      <div class="actions">
+        <button id="copyBtn" class="secondary">复制全文</button>
+        <a id="downloadBtn" class="secondary" download="recommendation_letter.txt">下载 .txt</a>
+        <a id="downloadDocxBtn" class="secondary">下载 .docx</a>
+        <button id="humanizeBtn" class="secondary">AI润色</button>
+      </div>
+      <p id="flagsText" class="flags"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2025 AI 留学文书生成器 ｜ Designed by Youlan Liao</p>
+    <p><a href="#user-guide" id="guideLink" style="color: var(--accent); text-decoration: none;">📖 用户操作指南</a></p>
+  </footer>
+
+  <!-- 用户指南模态框 -->
+  <div id="guideModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📖 用户操作指南</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h3>AI推荐信生成器使用说明</h3>
+        <p><strong>面向用户：</strong>国际高中班主任、升学顾问</p>
+        
+        <h4>第一步：填写基本信息</h4>
+        <ul>
+          <li><strong>学生英文名</strong>：必填，如 "Alex Chen"</li>
+          <li><strong>推荐信类型</strong>：选择 Counselor（班主任）、Teacher（学科老师）或 Character（品格）</li>
+          <li><strong>师生关系</strong>：选择您的具体身份</li>
+          <li><strong>任教/观察时长</strong>：如 "2 years"</li>
+        </ul>
+
+        <h4>第二步：描述学生特点</h4>
+        <ul>
+          <li><strong>3个优势词</strong>：必填，用逗号分隔，如 "diligent, collaborative, analytical"</li>
+          <li><strong>具体事例</strong>：选填，描述1-3句具体事例来支撑推荐</li>
+        </ul>
+
+        <h4>第三步：设置推荐信参数</h4>
+        <ul>
+          <li><strong>目标专业</strong>：选填，如 "Computer Science"</li>
+          <li><strong>目标院校</strong>：选填，每行一个学校</li>
+          <li><strong>教师姓名</strong>：您的姓名，用于推荐信落款</li>
+          <li><strong>篇幅选择</strong>：150词（简洁）、300词（标准）、400词（详细）</li>
+        </ul>
+
+        <h4>第四步：生成和优化</h4>
+        <ul>
+          <li>点击<strong>"生成推荐信"</strong>按钮</li>
+          <li>可选择<strong>"AI润色"</strong>让语言更加自然流畅</li>
+          <li>使用<strong>"复制全文"</strong>或<strong>"下载"</strong>功能保存推荐信</li>
+        </ul>
+
+        <h4>💡 使用技巧</h4>
+        <ul>
+          <li>不同学生名字会生成不同的推荐信内容，避免重复</li>
+          <li>优势词是推荐信的核心，请选择最能体现学生特点的词汇</li>
+          <li>具体事例能让推荐信更有说服力</li>
+          <li>可根据申请学校的要求选择合适的篇幅</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.20/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.0/docx.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

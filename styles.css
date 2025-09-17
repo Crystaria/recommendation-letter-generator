@@ -1,0 +1,185 @@
+:root {
+  --bg: #0b0f19;
+  --card: #111827;
+  --muted: #9aa4b2;
+  --text: #e5e7eb;
+  --accent: #6ea8fe;
+  --accent-2: #22c55e;
+  --danger: #ef4444;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+  background: radial-gradient(1200px 600px at 50% -10%, #111827, #0b0f19 60%);
+  color: var(--text);
+}
+
+.site-header, .site-footer {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.subtitle { color: var(--muted); margin-top: -8px; }
+
+.container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field--full { grid-column: 1 / -1; }
+
+label { font-weight: 600; }
+input, select, textarea {
+  background: #0f172a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 12px 12px;
+  outline: none;
+}
+input::placeholder, textarea::placeholder { color: #6b7280; }
+
+details summary { cursor: pointer; color: var(--muted); margin: 8px 0; }
+
+.actions { display: flex; gap: 12px; margin-top: 12px; }
+button, .secondary {
+  appearance: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+.secondary { background: transparent; }
+.secondary:hover { border-color: var(--accent-2); }
+
+.help { color: var(--muted); margin-top: 8px; font-size: 14px; }
+
+.hidden { display: none; }
+
+.letter {
+  white-space: pre-wrap;
+  background: #0f172a;
+  border: 1px dashed var(--border);
+  padding: 16px;
+  border-radius: 12px;
+  line-height: 1.6;
+}
+
+.flags { color: var(--danger); margin-top: 8px; font-size: 14px; }
+
+/* 模态框样式 */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--card);
+  margin: 5% auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--text);
+}
+
+.close {
+  color: var(--muted);
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close:hover {
+  color: var(--accent);
+}
+
+.modal-body {
+  padding: 20px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.modal-body h3 {
+  color: var(--accent);
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.modal-body h4 {
+  color: var(--accent-2);
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.modal-body ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.modal-body li {
+  margin: 8px 0;
+}
+
+.modal-body strong {
+  color: var(--accent);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 10% auto;
+  }
+  
+  .modal-header, .modal-body {
+    padding: 16px;
+  }
+}
