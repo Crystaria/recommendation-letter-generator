@@ -22,13 +22,8 @@
         </div>
 
         <div class="field">
-          <label for="letter_type">推荐信类型（必选）</label>
-          <select id="letter_type" name="letter_type" required>
-            <option value="">请选择</option>
-            <option value="Counselor">Counselor（班主任/升学顾问）</option>
-            <option value="Teacher">Teacher（学科老师）</option>
-            <option value="Character">Character（品格/活动）</option>
-          </select>
+          <label for="letter_type">推荐信类型</label>
+          <input type="text" id="letter_type" name="letter_type" value="Academic（学术类）" readonly style="background-color: #1f2937; color: #9ca3af;">
         </div>
 
         <div class="field">
@@ -99,70 +94,77 @@
 
     <section id="resultCard" class="card hidden">
       <h2>生成结果预览</h2>
-      <pre id="letterOutput" class="letter"></pre>
+      <div class="result-comparison">
+        <div class="result-original">
+          <h3>原始版本</h3>
+          <pre id="letterOutput" class="letter"></pre>
+        </div>
+        <div class="result-humanized hidden" id="humanizedResult">
+          <h3>去AI化版本</h3>
+          <pre id="letterOutputHumanized" class="letter"></pre>
+        </div>
+      </div>
       <div class="actions">
         <button id="copyBtn" class="secondary">复制全文</button>
         <a id="downloadBtn" class="secondary" download="recommendation_letter.txt">下载 .txt</a>
         <a id="downloadDocxBtn" class="secondary">下载 .docx</a>
-        <button id="humanizeBtn" class="secondary">AI润色</button>
+        <button id="humanizeBtn" class="secondary">去AI化</button>
       </div>
       <p id="flagsText" class="flags"></p>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© 2025 AI 留学文书生成器 ｜ Designed by Youlan Liao</p>
+    <p>© 2025 AI 推荐信生成器 ｜ Designed by Youlan Liao</p>
     <p><a href="#user-guide" id="guideLink" style="color: var(--accent); text-decoration: none;">📖 用户操作指南</a></p>
   </footer>
 
-  <!-- 用户指南模态框 -->
-  <div id="guideModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>📖 用户操作指南</h2>
-        <span class="close">&times;</span>
-      </div>
-      <div class="modal-body">
-        <h3>AI推荐信生成器使用说明</h3>
-        <p><strong>面向用户：</strong>国际高中班主任、升学顾问</p>
-        
-        <h4>第一步：填写基本信息</h4>
-        <ul>
-          <li><strong>学生英文名</strong>：必填，如 "Alex Chen"</li>
-          <li><strong>推荐信类型</strong>：选择 Counselor（班主任）、Teacher（学科老师）或 Character（品格）</li>
-          <li><strong>师生关系</strong>：选择您的具体身份</li>
-          <li><strong>任教/观察时长</strong>：如 "2 years"</li>
-        </ul>
+  <!-- 用户指南右侧内嵌窗口 -->
+  <div id="guideSidebar" class="guide-sidebar hidden">
+    <div class="guide-header">
+      <h3>📖 用户操作指南</h3>
+      <button class="guide-close">&times;</button>
+    </div>
+    <div class="guide-content">
+      <h4>AI推荐信生成器使用说明</h4>
+      <p><strong>面向用户：</strong>国际高中班主任、升学顾问</p>
+      
+      <h5>第一步：填写基本信息</h5>
+      <ul>
+        <li><strong>学生英文名</strong>：必填，如 "Alex Chen"</li>
+        <li><strong>推荐信类型</strong>：固定为 Academic（学术类）</li>
+        <li><strong>师生关系</strong>：选择您的具体身份</li>
+        <li><strong>任教/观察时长</strong>：如 "2 years"</li>
+      </ul>
 
-        <h4>第二步：描述学生特点</h4>
-        <ul>
-          <li><strong>3个优势词</strong>：必填，用逗号分隔，如 "diligent, collaborative, analytical"</li>
-          <li><strong>具体事例</strong>：选填，描述1-3句具体事例来支撑推荐</li>
-        </ul>
+      <h5>第二步：描述学生特点</h5>
+      <ul>
+        <li><strong>3个优势词</strong>：必填，用逗号分隔，如 "diligent, collaborative, analytical"</li>
+        <li><strong>具体事例</strong>：选填，描述1-3句具体事例来支撑推荐</li>
+      </ul>
 
-        <h4>第三步：设置推荐信参数</h4>
-        <ul>
-          <li><strong>目标专业</strong>：选填，如 "Computer Science"</li>
-          <li><strong>目标院校</strong>：选填，每行一个学校</li>
-          <li><strong>教师姓名</strong>：您的姓名，用于推荐信落款</li>
-          <li><strong>篇幅选择</strong>：150词（简洁）、300词（标准）、400词（详细）</li>
-        </ul>
+      <h5>第三步：设置推荐信参数</h5>
+      <ul>
+        <li><strong>目标专业</strong>：选填，如 "Computer Science"</li>
+        <li><strong>目标院校</strong>：选填，每行一个学校</li>
+        <li><strong>教师姓名</strong>：您的姓名，用于推荐信落款</li>
+        <li><strong>篇幅选择</strong>：150词（简洁）、300词（标准）、400词（详细）</li>
+      </ul>
 
-        <h4>第四步：生成和优化</h4>
-        <ul>
-          <li>点击<strong>"生成推荐信"</strong>按钮</li>
-          <li>可选择<strong>"AI润色"</strong>让语言更加自然流畅</li>
-          <li>使用<strong>"复制全文"</strong>或<strong>"下载"</strong>功能保存推荐信</li>
-        </ul>
+      <h5>第四步：生成和优化</h5>
+      <ul>
+        <li>点击<strong>"生成推荐信"</strong>按钮</li>
+        <li>可选择<strong>"AI润色"</strong>让语言更加自然流畅</li>
+        <li>使用<strong>"复制全文"</strong>或<strong>"下载"</strong>功能保存推荐信</li>
+      </ul>
 
-        <h4>💡 使用技巧</h4>
-        <ul>
-          <li>不同学生名字会生成不同的推荐信内容，避免重复</li>
-          <li>优势词是推荐信的核心，请选择最能体现学生特点的词汇</li>
-          <li>具体事例能让推荐信更有说服力</li>
-          <li>可根据申请学校的要求选择合适的篇幅</li>
-        </ul>
-      </div>
+      <h5>💡 使用技巧</h5>
+      <ul>
+        <li>不同学生名字会生成不同的推荐信内容，避免重复</li>
+        <li>优势词是推荐信的核心，请选择最能体现学生特点的词汇</li>
+        <li>具体事例能让推荐信更有说服力</li>
+        <li>可根据申请学校的要求选择合适的篇幅</li>
+      </ul>
     </div>
   </div>
 
@@ -172,3 +174,4 @@
   <script src="./app.js"></script>
 </body>
 </html>
+
