@@ -91,95 +91,155 @@ button:hover { border-color: var(--accent); }
 
 .flags { color: var(--danger); margin-top: 8px; font-size: 14px; }
 
-/* 模态框样式 */
-.modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+/* 结果对比样式 */
+.result-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
-.modal-content {
-  background: var(--card);
-  margin: 5% auto;
-  padding: 0;
+.result-original, .result-humanized {
+  background: #0f172a;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.modal-header {
+.result-original h3, .result-humanized h3 {
+  margin: 0 0 12px 0;
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.result-humanized h3 {
+  color: var(--accent-2);
+}
+
+/* 右侧用户指南样式 */
+.guide-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  z-index: 1000;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.guide-sidebar:not(.hidden) {
+  transform: translateX(0);
+}
+
+.guide-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px;
   border-bottom: 1px solid var(--border);
+  background: var(--card);
+  position: sticky;
+  top: 0;
+  z-index: 1001;
 }
 
-.modal-header h2 {
+.guide-header h3 {
   margin: 0;
   color: var(--text);
+  font-size: 18px;
 }
 
-.close {
+.guide-close {
+  background: none;
+  border: none;
   color: var(--muted);
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 24px;
   cursor: pointer;
-  transition: color 0.3s ease;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
-.close:hover {
+.guide-close:hover {
   color: var(--accent);
+  background: rgba(110, 168, 254, 0.1);
 }
 
-.modal-body {
+.guide-content {
   padding: 20px;
   color: var(--text);
   line-height: 1.6;
 }
 
-.modal-body h3 {
+.guide-content h4 {
   color: var(--accent);
   margin-top: 0;
   margin-bottom: 16px;
+  font-size: 16px;
 }
 
-.modal-body h4 {
+.guide-content h5 {
   color: var(--accent-2);
   margin-top: 20px;
   margin-bottom: 12px;
+  font-size: 14px;
 }
 
-.modal-body ul {
+.guide-content ul {
   margin: 12px 0;
   padding-left: 20px;
 }
 
-.modal-body li {
+.guide-content li {
   margin: 8px 0;
+  font-size: 14px;
 }
 
-.modal-body strong {
+.guide-content strong {
   color: var(--accent);
+}
+
+/* 高亮修改部分 */
+.highlight-added {
+  background-color: rgba(34, 197, 94, 0.2);
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+.highlight-removed {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-radius: 3px;
+  padding: 1px 2px;
+  text-decoration: line-through;
+}
+
+.highlight-modified {
+  background-color: rgba(110, 168, 254, 0.2);
+  border-radius: 3px;
+  padding: 1px 2px;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    margin: 10% auto;
+  .result-comparison {
+    grid-template-columns: 1fr;
   }
   
-  .modal-header, .modal-body {
+  .guide-sidebar {
+    width: 100%;
+  }
+  
+  .guide-header, .guide-content {
     padding: 16px;
   }
 }
