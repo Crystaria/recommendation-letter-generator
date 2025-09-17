@@ -529,6 +529,3 @@ document.addEventListener("keydown", (e) => {
     guideSidebar.classList.add("hidden");
   }
 });
-
-});
-
