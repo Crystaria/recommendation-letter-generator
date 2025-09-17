@@ -11,8 +11,10 @@ const downloadBtn = document.getElementById("downloadBtn");
 const downloadDocxBtn = document.getElementById("downloadDocxBtn");
 const humanizeBtn = document.getElementById("humanizeBtn");
 const guideLink = document.getElementById("guideLink");
-const guideModal = document.getElementById("guideModal");
-const closeModal = document.querySelector(".close");
+const guideSidebar = document.getElementById("guideSidebar");
+const guideClose = document.querySelector(".guide-close");
+const letterOutputHumanized = document.getElementById("letterOutputHumanized");
+const humanizedResult = document.getElementById("humanizedResult");
 
 // 基于学生名字生成唯一变化的函数
 function generateStudentVariation(studentName) {
@@ -55,11 +57,11 @@ function generateRecommendationLetter(payload) {
   // 生成推荐信内容
   let letter = `${salutation}\n\n`;
 
-  // 开头段落 - 基于学生名字变化
+  // 开头段落 - 基于学生名字变化（Academic类型）
   const openingTemplates = [
-    `I am writing to enthusiastically recommend ${student_name} for admission to your institution. As ${student_name}'s ${relationship_role.toLowerCase()} for ${relationship_duration}, I have had the privilege of observing ${student_name}'s exceptional qualities and potential for success at the university level.`,
-    `It is my pleasure to write this letter of recommendation for ${student_name}. Having served as their ${relationship_role.toLowerCase()} for ${relationship_duration}, I can confidently attest to ${student_name}'s outstanding character and academic excellence.`,
-    `I am honored to recommend ${student_name} for admission to your university. Through my role as their ${relationship_role.toLowerCase()} for ${relationship_duration}, I have witnessed ${student_name}'s remarkable growth and dedication to academic excellence.`
+    `I am writing to enthusiastically recommend ${student_name} for admission to your institution. As ${student_name}'s ${relationship_role.toLowerCase()} for ${relationship_duration}, I have had the privilege of observing ${student_name}'s exceptional academic abilities and potential for success at the university level.`,
+    `It is my pleasure to write this letter of recommendation for ${student_name}. Having served as their ${relationship_role.toLowerCase()} for ${relationship_duration}, I can confidently attest to ${student_name}'s outstanding academic performance and intellectual curiosity.`,
+    `I am honored to recommend ${student_name} for admission to your university. Through my role as their ${relationship_role.toLowerCase()} for ${relationship_duration}, I have witnessed ${student_name}'s remarkable academic growth and dedication to scholarly excellence.`
   ];
   
   letter += openingTemplates[variation % openingTemplates.length] + "\n\n";
@@ -240,7 +242,7 @@ function humanizeText(text) {
 
 fillDemoBtn.addEventListener("click", () => {
   document.getElementById("student_name").value = "Alex Chen";
-  document.getElementById("letter_type").value = "Counselor";
+  document.getElementById("letter_type").value = "Academic（学术类）";
   document.getElementById("relationship_role").value = "Homeroom Teacher";
   document.getElementById("relationship_duration").value = "2 years";
   document.getElementById("deadline").valueAsDate = new Date(Date.now() + 1000*60*60*24*21);
@@ -281,6 +283,9 @@ form.addEventListener("submit", async (e) => {
     letterOutput.textContent = localLetter;
     flagsText.textContent = "使用本地生成引擎 - 已确保所有用户输入信息被正确整合";
     resultCard.classList.remove("hidden");
+    
+    // 隐藏润色结果
+    humanizedResult.classList.add("hidden");
 
     const blob = new Blob([letterOutput.textContent], { type: "text/plain" });
     downloadBtn.href = URL.createObjectURL(blob);
@@ -336,34 +341,131 @@ copyBtn.addEventListener("click", async () => {
   setTimeout(() => (copyBtn.textContent = "复制全文"), 1500);
 });
 
-// AI润色按钮事件
-humanizeBtn.addEventListener("click", () => {
+// AI润色按钮事件 - 接入humanizeai.io
+humanizeBtn.addEventListener("click", async () => {
   const originalText = letterOutput.textContent;
-  if (originalText && originalText.trim()) {
+  if (!originalText || !originalText.trim()) return;
+  
+  humanizeBtn.disabled = true;
+  humanizeBtn.textContent = "润色中...";
+  
+  try {
+    // 调用humanizeai.io API
+    const response = await fetch('https://www.humanizeai.io/api/humanize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: originalText,
+        mode: 'basic'
+      })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      const humanizedText = data.humanized_text || data.text;
+      
+      // 显示对比结果
+      letterOutputHumanized.textContent = humanizedText;
+      humanizedResult.classList.remove("hidden");
+      
+      // 高亮显示修改部分
+      highlightDifferences(originalText, humanizedText);
+      
+      humanizeBtn.textContent = "已润色";
+      humanizeBtn.style.backgroundColor = "var(--accent-2)";
+      humanizeBtn.style.borderColor = "var(--accent-2)";
+      
+      setTimeout(() => {
+        humanizeBtn.textContent = "AI润色";
+        humanizeBtn.style.backgroundColor = "";
+        humanizeBtn.style.borderColor = "";
+      }, 3000);
+    } else {
+      // 如果API调用失败，使用本地润色
+      const humanizedText = humanizeText(originalText);
+      letterOutputHumanized.textContent = humanizedText;
+      humanizedResult.classList.remove("hidden");
+      highlightDifferences(originalText, humanizedText);
+      
+      humanizeBtn.textContent = "已润色（本地）";
+      humanizeBtn.style.backgroundColor = "var(--accent-2)";
+      humanizeBtn.style.borderColor = "var(--accent-2)";
+      
+      setTimeout(() => {
+        humanizeBtn.textContent = "AI润色";
+        humanizeBtn.style.backgroundColor = "";
+        humanizeBtn.style.borderColor = "";
+      }, 3000);
+    }
+  } catch (error) {
+    console.error("润色失败:", error);
+    // 使用本地润色作为备选
     const humanizedText = humanizeText(originalText);
-    letterOutput.textContent = humanizedText;
-    humanizeBtn.textContent = "已润色";
+    letterOutputHumanized.textContent = humanizedText;
+    humanizedResult.classList.remove("hidden");
+    highlightDifferences(originalText, humanizedText);
+    
+    humanizeBtn.textContent = "已润色（本地）";
     humanizeBtn.style.backgroundColor = "var(--accent-2)";
     humanizeBtn.style.borderColor = "var(--accent-2)";
-    
-    // 更新下载链接
-    const blob = new Blob([humanizedText], { type: "text/plain" });
-    downloadBtn.href = URL.createObjectURL(blob);
     
     setTimeout(() => {
       humanizeBtn.textContent = "AI润色";
       humanizeBtn.style.backgroundColor = "";
       humanizeBtn.style.borderColor = "";
-    }, 2000);
+    }, 3000);
+  } finally {
+    humanizeBtn.disabled = false;
   }
 });
 
+// 高亮显示差异
+function highlightDifferences(original, humanized) {
+  // 简单的差异高亮实现
+  const originalWords = original.split(' ');
+  const humanizedWords = humanized.split(' ');
+  
+  let highlightedOriginal = '';
+  let highlightedHumanized = '';
+  
+  // 比较并高亮不同的部分
+  const maxLength = Math.max(originalWords.length, humanizedWords.length);
+  
+  for (let i = 0; i < maxLength; i++) {
+    const origWord = originalWords[i] || '';
+    const humanWord = humanizedWords[i] || '';
+    
+    if (origWord !== humanWord) {
+      if (origWord) {
+        highlightedOriginal += `<span class="highlight-removed">${origWord}</span> `;
+      }
+      if (humanWord) {
+        highlightedHumanized += `<span class="highlight-added">${humanWord}</span> `;
+      }
+    } else {
+      highlightedOriginal += origWord + ' ';
+      highlightedHumanized += humanWord + ' ';
+    }
+  }
+  
+  // 更新显示（这里简化处理，实际可以更复杂）
+  letterOutput.innerHTML = highlightedOriginal;
+  letterOutputHumanized.innerHTML = highlightedHumanized;
+}
+
 // DOCX下载功能
-downloadDocxBtn.addEventListener("click", () => {
+downloadDocxBtn.addEventListener("click", async () => {
   const text = letterOutput.textContent;
   if (!text || !text.trim()) return;
   
   try {
+    // 检查docx库是否可用
+    if (typeof docx === 'undefined') {
+      throw new Error('DOCX库未加载');
+    }
+    
     // 使用docx库创建文档
     const doc = new docx.Document({
       sections: [{
@@ -386,37 +488,45 @@ downloadDocxBtn.addEventListener("click", () => {
       }]
     });
     
-    docx.Packer.toBlob(doc).then(blob => {
-      const studentName = document.getElementById("student_name").value || "student";
-      const fileName = `${studentName}-recommendation.docx`;
-      saveAs(blob, fileName);
+    // 生成文档
+    const buffer = await docx.Packer.toBuffer(doc);
+    const blob = new Blob([buffer], { 
+      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
     });
+    
+    const studentName = document.getElementById("student_name").value || "student";
+    const fileName = `${studentName}-recommendation.docx`;
+    
+    // 创建下载链接
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
   } catch (error) {
     console.error("DOCX生成失败:", error);
     alert("DOCX下载功能暂时不可用，请使用TXT格式下载。");
   }
 });
 
-// 用户指南模态框事件
+// 用户指南侧边栏事件
 guideLink.addEventListener("click", (e) => {
   e.preventDefault();
-  guideModal.classList.remove("hidden");
+  guideSidebar.classList.remove("hidden");
 });
 
-closeModal.addEventListener("click", () => {
-  guideModal.classList.add("hidden");
+guideClose.addEventListener("click", () => {
+  guideSidebar.classList.add("hidden");
 });
 
-// 点击模态框外部关闭
-guideModal.addEventListener("click", (e) => {
-  if (e.target === guideModal) {
-    guideModal.classList.add("hidden");
-  }
-});
-
-// ESC键关闭模态框
+// ESC键关闭侧边栏
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !guideModal.classList.contains("hidden")) {
-    guideModal.classList.add("hidden");
+  if (e.key === "Escape" && !guideSidebar.classList.contains("hidden")) {
+    guideSidebar.classList.add("hidden");
   }
 });
+
